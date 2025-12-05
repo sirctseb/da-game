@@ -1,24 +1,22 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const [result, setResult] = useState(null);
+  const { push } = useRouter();
 
   const handleClick = useCallback(async () => {
-    console.log("posting hello world");
-    const response = await fetch("/actions/helloWorld", {
+    const response = await fetch("/actions/game", {
       method: "POST",
     });
     const data = await response.json();
-    setResult(JSON.stringify(data));
-    // setResult("hello world");
-  }, []);
+    push(`/game/${data.gameId}`);
+  }, [push]);
 
   return (
     <div>
-      <pre>{result}</pre>
-      <button onClick={handleClick}>post hello world</button>
+      <button onClick={handleClick}>new game</button>
     </div>
   );
 }
