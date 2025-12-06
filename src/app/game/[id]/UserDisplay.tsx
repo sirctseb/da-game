@@ -1,23 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import type { GameState } from "../../../model";
 import { getUserId } from "../../../user";
 import type { Serialized } from "../../../state";
-
-// so anything needing client-only things will need components
-// to handle an absent state. this is obvious i guess, and the good part
-// is the second render with data can come after just a render cycle
-// and not an async call, so it doesn't necessarily mean a wait. will
-// there still be a flash though?
-const useUserId = (): string | null => {
-  const [userId, setUserId] = useState<string | null>(null);
-  useEffect(() => {
-    setUserId(getUserId);
-  }, []);
-
-  return userId;
-};
+import { useUserId } from "../../useUserId";
 
 export function UserDisplay({
   game,

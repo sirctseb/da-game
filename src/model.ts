@@ -36,3 +36,8 @@ export interface Turn {
   playerId: string;
   playedCards: number[];
 }
+
+export interface Play {
+  card: number;
+  pile: "upOne" | "upTwo" | "downOne" | "downTwo";
+}
