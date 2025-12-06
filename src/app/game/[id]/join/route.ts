@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { getGame, updateGame } from "../../../../state";
+import { getGame, serialized, updateGame } from "../../../../state";
 import { joinGame } from "../../../../mutations";
 
 export const PUT = async (
@@ -32,9 +32,9 @@ export const PUT = async (
   const updatedGame = joinGame(game, name, key);
   const result = await updateGame(updatedGame, id);
 
-  if (!result.acknowledged) {
+  if (!result) {
     return new Response("Join failed", { status: 500 });
   }
 
-  return Response.json(updatedGame);
+  return Response.json(serialized(result));
 };

@@ -8,7 +8,9 @@ const getClient = async () => {
 
 export type Serialized<T> = T & { _id: string };
 
-function serialized<T extends WithId<P>, P>(entity: T): T & { _id: string } {
+export function serialized<T extends WithId<P>, P>(
+  entity: T
+): T & { _id: string } {
   return { ...entity, _id: entity._id.toString() };
 }
 
@@ -54,7 +56,12 @@ export async function getGame(
   return serialized(result);
 }
 
-export async function updateGame(gameState: Serialized<GameState>, id: string) {
+// TODO various layers of this state are getting messy
+
+export async function updateGame(
+  gameState: Serialized<GameState>,
+  id: string
+): Promise<WithId<GameState> | null> {
   const { _id, ...writeableGameState } = gameState;
   const actualClient = await getClient();
   const result = await actualClient

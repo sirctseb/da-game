@@ -34,11 +34,11 @@ function gameStarted(gameState: GameState): boolean {
   );
 }
 
-export function joinGame(
-  gameState: GameState,
+export function joinGame<T extends GameState>(
+  gameState: T,
   playerName: string,
   playerKey: string
-): GameState {
+): T {
   // validation
   // game not started
   if (gameStarted(gameState)) {
