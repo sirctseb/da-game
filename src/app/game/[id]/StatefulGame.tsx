@@ -6,6 +6,7 @@ import type { GameState } from "../../../model";
 import { GameDisplay } from "./GameDisplay";
 import { UserDisplay } from "./UserDisplay";
 import type { Serialized } from "../../../state";
+import { GameControls } from "./GameControls";
 
 export function StatefulGame({
   gameState,
@@ -17,6 +18,7 @@ export function StatefulGame({
   return (
     <div>
       <GameDisplay game={game} />
+      <GameControls game={game} onUpdateGame={setGame} />
       <UserDisplay game={game} onUpdateGame={setGame} />
     </div>
   );

@@ -7,7 +7,7 @@ export default function Home() {
   const { push } = useRouter();
 
   const handleClick = useCallback(async () => {
-    const response = await fetch("/actions/game", {
+    const response = await fetch("/game", {
       method: "POST",
     });
     const data = await response.json();

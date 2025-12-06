@@ -1,4 +1,4 @@
-import type { Deck, GameState } from "./model";
+import type { Deck, GameState, PersistedGameState } from "./model";
 
 export const shuffleCards = (): Deck => {
   const cards = [...Array(98).keys()].map((i) => i + 1);
@@ -30,15 +30,15 @@ function gameStarted(gameState: GameState): boolean {
     gameState.piles.upTwo.cards.length > 0 ||
     gameState.piles.downOne.cards.length > 0 ||
     gameState.piles.downTwo.cards.length > 0 ||
-    gameState.players.some((player) => player.hand.cards.size > 0)
+    gameState.players.some((player) => player.hand.cards.length > 0)
   );
 }
 
-export function joinGame<T extends GameState>(
-  gameState: T,
+export function joinGame(
+  gameState: PersistedGameState,
   playerName: string,
   playerKey: string
-): T {
+): PersistedGameState {
   // validation
   // game not started
   if (gameStarted(gameState)) {
@@ -48,7 +48,7 @@ export function joinGame<T extends GameState>(
   const newPlayer = {
     key: playerKey,
     name: playerName,
-    hand: { cards: new Set<number>() },
+    hand: { cards: [] },
   };
   return {
     ...gameState,
@@ -56,10 +56,10 @@ export function joinGame<T extends GameState>(
   };
 }
 
-export function leaveGame<T extends GameState>(
-  gameState: T,
+export function leaveGame(
+  gameState: PersistedGameState,
   playerKey: string
-): T {
+): PersistedGameState {
   // validation
   // game not started
   if (gameStarted(gameState)) {
@@ -73,12 +73,33 @@ export function leaveGame<T extends GameState>(
   };
 }
 
+export function deal(gameState: PersistedGameState): PersistedGameState {
+  // validation
+  // game not started
+  if (gameStarted(gameState)) {
+    throw new Error("Cannot deal: game has already started");
+  }
+
+  const playerKeys = gameState.players.map((p) => p.key);
+  const DRAW_COUNT =
+    gameState.players.length === 1 ? 8 : gameState.players.length === 2 ? 7 : 6;
+
+  let workingGameState = gameState;
+  for (const playerKey of playerKeys) {
+    for (let i = 0; i < DRAW_COUNT; i++) {
+      workingGameState = drawOne(workingGameState, playerKey);
+    }
+  }
+
+  return workingGameState;
+}
+
 export function playCard(
-  gameState: GameState,
+  gameState: PersistedGameState,
   pileKey: keyof GameState["piles"],
   cardValue: number,
   playerKey: string
-): GameState {
+): PersistedGameState {
   const pile = gameState.piles[pileKey];
 
   // validations
@@ -89,7 +110,7 @@ export function playCard(
   }
 
   // player has card
-  if (!player.hand.cards.has(cardValue)) {
+  if (!player.hand.cards.includes(cardValue)) {
     throw new Error("Player does not have the specified card");
   }
 
@@ -113,8 +134,7 @@ export function playCard(
   };
   const updatedPlayers = gameState.players.map((p) => {
     if (p.key === playerKey) {
-      const updatedHand = new Set(p.hand.cards);
-      updatedHand.delete(cardValue);
+      const updatedHand = p.hand.cards.filter((c) => c !== cardValue);
       return { ...p, hand: { cards: updatedHand } };
     }
     return p;
@@ -130,7 +150,42 @@ export function playCard(
   };
 }
 
-export function endTurn(gameState: GameState, playerKey: string): GameState {
+function drawOne(
+  gameState: PersistedGameState,
+  playerKey: string
+): PersistedGameState {
+  const player = gameState.players.find((p) => p.key === playerKey);
+  if (!player) {
+    throw new Error("Player not found");
+  }
+
+  if (gameState.deck.cards.length === 0) {
+    throw new Error("Deck is empty");
+  }
+
+  const drawnCard = gameState.deck.cards[0];
+  const updatedHand = [...player.hand.cards, drawnCard];
+  const updatedPlayers = gameState.players.map((p) => {
+    if (p.key === playerKey) {
+      return { ...p, hand: { cards: updatedHand } };
+    }
+    return p;
+  });
+  const updatedDeck = {
+    cards: gameState.deck.cards.slice(1),
+  };
+
+  return {
+    ...gameState,
+    players: updatedPlayers,
+    deck: updatedDeck,
+  };
+}
+
+export function endTurn(
+  gameState: PersistedGameState,
+  playerKey: string
+): PersistedGameState {
   // validation
 
   // player exists
@@ -141,22 +196,23 @@ export function endTurn(gameState: GameState, playerKey: string): GameState {
 
   // have played enough cards
   if (gameState.deck.cards.length === 0) {
-    if (player.hand.cards.size >= 7) {
+    if (player.hand.cards.length >= 7) {
       throw new Error("Must play at least one card when deck is empty");
     }
   } else {
-    if (player.hand.cards.size >= 5) {
+    if (player.hand.cards.length >= 5) {
       throw new Error("Must play at least two cards before ending turn");
     }
   }
 
+  // TODO refactor to use drawOne
   let workingDeck = [...gameState.deck.cards];
   const updatedPlayers = gameState.players.map((p) => {
     if (p.key === playerKey) {
-      const updatedHand = new Set(p.hand.cards);
-      while (updatedHand.size < 6 && workingDeck.length > 0) {
+      let updatedHand = [...p.hand.cards];
+      while (updatedHand.length < 6 && workingDeck.length > 0) {
         const drawnCard = gameState.deck.cards[0];
-        updatedHand.add(drawnCard);
+        updatedHand = [...updatedHand, drawnCard];
         workingDeck = workingDeck.slice(1);
       }
       return { ...p, hand: { cards: updatedHand } };

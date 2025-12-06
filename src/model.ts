@@ -1,3 +1,5 @@
+import type { Serialized } from "./state";
+
 export interface Pile {
   direction: "up" | "down";
   cards: number[];
@@ -18,6 +20,8 @@ export interface GameState {
   players: Player[];
 }
 
+export type PersistedGameState = Serialized<GameState>;
+
 export interface Player {
   key: string;
   name: string;
@@ -25,7 +29,7 @@ export interface Player {
 }
 
 export interface Hand {
-  cards: Set<number>;
+  cards: number[];
 }
 
 export interface Turn {
