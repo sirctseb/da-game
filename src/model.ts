@@ -19,7 +19,7 @@ export interface GameState {
 }
 
 export interface Player {
-  id: string;
+  key: string;
   name: string;
   hand: Hand;
 }

@@ -1,10 +1,16 @@
-import { ObjectId } from "mongodb";
+import { ObjectId, type WithId } from "mongodb";
 import type { GameState } from "./model";
 import client from "./mongodbClient";
 
 const getClient = async () => {
   return await client.connect();
 };
+
+export type Serialized<T> = T & { _id: string };
+
+function serialized<T extends WithId<P>, P>(entity: T): T & { _id: string } {
+  return { ...entity, _id: entity._id.toString() };
+}
 
 export async function writeHelloWorld() {
   const actualClient = await getClient();
@@ -33,12 +39,28 @@ export async function createGame(gameState: GameState) {
   return result;
 }
 
-export async function getGame(id: string): Promise<GameState | null> {
+export async function getGame(
+  id: string
+): Promise<Serialized<GameState> | null> {
   const actualClient = await getClient();
   const result = await actualClient
     .db("games")
     .collection<GameState>("games")
     .findOne({ _id: new ObjectId(id) });
   console.log("getGame result:", { result });
+  if (!result) {
+    return null;
+  }
+  return serialized(result);
+}
+
+export async function updateGame(gameState: Serialized<GameState>, id: string) {
+  const { _id, ...writeableGameState } = gameState;
+  const actualClient = await getClient();
+  const result = await actualClient
+    .db("games")
+    .collection<GameState>("games")
+    .findOneAndReplace({ _id: new ObjectId(id) }, writeableGameState);
+  console.log("updateGame result:", { result });
   return result;
 }

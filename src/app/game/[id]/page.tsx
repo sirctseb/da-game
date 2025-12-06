@@ -1,4 +1,5 @@
 import { getGame } from "../../../state";
+import { UserDisplay } from "./UserDisplay";
 
 export default async function GamePage({
   params,
@@ -7,6 +8,12 @@ export default async function GamePage({
 }) {
   const { id } = await params;
   const game = await getGame(id);
+  const { deck, ...displayGame } = game;
 
-  return <pre>{JSON.stringify(game, undefined, "\t")}</pre>;
+  return (
+    <div>
+      <pre>{JSON.stringify(displayGame, undefined, "\t")}</pre>
+      <UserDisplay game={game} />
+    </div>
+  );
 }

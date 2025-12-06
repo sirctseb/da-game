@@ -24,11 +24,6 @@ export function initializeGameState(): GameState {
   };
 }
 
-function generatePlayerId(): string {
-  // TODO uuid
-  return Math.random().toString(36).substring(2, 9);
-}
-
 function gameStarted(gameState: GameState): boolean {
   return (
     gameState.piles.upOne.cards.length > 0 ||
@@ -39,7 +34,11 @@ function gameStarted(gameState: GameState): boolean {
   );
 }
 
-export function addPlayer(gameState: GameState, playerName: string): GameState {
+export function joinGame(
+  gameState: GameState,
+  playerName: string,
+  playerKey: string
+): GameState {
   // validation
   // game not started
   if (gameStarted(gameState)) {
@@ -47,7 +46,7 @@ export function addPlayer(gameState: GameState, playerName: string): GameState {
   }
 
   const newPlayer = {
-    id: generatePlayerId(),
+    key: playerKey,
     name: playerName,
     hand: { cards: new Set<number>() },
   };
@@ -61,13 +60,13 @@ export function playCard(
   gameState: GameState,
   pileKey: keyof GameState["piles"],
   cardValue: number,
-  playerId: string
+  playerKey: string
 ): GameState {
   const pile = gameState.piles[pileKey];
 
   // validations
   // player exists
-  const player = gameState.players.find((p) => p.id === playerId);
+  const player = gameState.players.find((p) => p.key === playerKey);
   if (!player) {
     throw new Error("Player not found");
   }
@@ -96,7 +95,7 @@ export function playCard(
     cards: [...pile.cards, cardValue],
   };
   const updatedPlayers = gameState.players.map((p) => {
-    if (p.id === playerId) {
+    if (p.key === playerKey) {
       const updatedHand = new Set(p.hand.cards);
       updatedHand.delete(cardValue);
       return { ...p, hand: { cards: updatedHand } };
@@ -114,11 +113,11 @@ export function playCard(
   };
 }
 
-export function endTurn(gameState: GameState, playerId: string): GameState {
+export function endTurn(gameState: GameState, playerKey: string): GameState {
   // validation
 
   // player exists
-  const player = gameState.players.find((p) => p.id === playerId);
+  const player = gameState.players.find((p) => p.key === playerKey);
   if (!player) {
     throw new Error("Player not found");
   }
@@ -136,7 +135,7 @@ export function endTurn(gameState: GameState, playerId: string): GameState {
 
   let workingDeck = [...gameState.deck.cards];
   const updatedPlayers = gameState.players.map((p) => {
-    if (p.id === playerId) {
+    if (p.key === playerKey) {
       const updatedHand = new Set(p.hand.cards);
       while (updatedHand.size < 6 && workingDeck.length > 0) {
         const drawnCard = gameState.deck.cards[0];
