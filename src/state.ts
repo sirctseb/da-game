@@ -66,7 +66,9 @@ export async function updateGame(
   const result = await actualClient
     .db("games")
     .collection<GameState>("games")
-    .findOneAndReplace({ _id: new ObjectId(_id) }, writeableGameState);
+    .findOneAndReplace({ _id: new ObjectId(_id) }, writeableGameState, {
+      returnDocument: "after",
+    });
   console.log("updateGame result:", { result });
   return result;
 }

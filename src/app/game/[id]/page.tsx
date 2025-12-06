@@ -1,5 +1,5 @@
 import { getGame } from "../../../state";
-import { UserDisplay } from "./UserDisplay";
+import { StatefulGame } from "./StatefulGame";
 
 export default async function GamePage({
   params,
@@ -8,12 +8,6 @@ export default async function GamePage({
 }) {
   const { id } = await params;
   const game = await getGame(id);
-  const { deck, ...displayGame } = game;
 
-  return (
-    <div>
-      <pre>{JSON.stringify(displayGame, undefined, "\t")}</pre>
-      <UserDisplay game={game} />
-    </div>
-  );
+  return game ? <StatefulGame gameState={game} /> : <div>Game not found</div>;
 }

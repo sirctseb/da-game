@@ -19,7 +19,13 @@ const useUserId = (): string | null => {
   return userId;
 };
 
-export function UserDisplay({ game }: { game: Serialized<GameState> | null }) {
+export function UserDisplay({
+  game,
+  onUpdateGame,
+}: {
+  game: Serialized<GameState> | null;
+  onUpdateGame: (game: Serialized<GameState>) => void;
+}) {
   const handleJoin = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -37,8 +43,7 @@ export function UserDisplay({ game }: { game: Serialized<GameState> | null }) {
 
       if (response.ok) {
         // successfully joined
-        // TODO throw new game state to the top
-        window.location.reload();
+        onUpdateGame(await response.json());
       } else {
         // handle error
         console.error("Failed to join game");
@@ -58,7 +63,7 @@ export function UserDisplay({ game }: { game: Serialized<GameState> | null }) {
 
     if (response.ok) {
       // successfully left
-      window.location.reload();
+      onUpdateGame(await response.json());
     } else {
       // handle error
       console.error("Failed to leave game", { message: await response.json() });
