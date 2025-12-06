@@ -24,7 +24,7 @@ export function UserDisplay({ game }: { game: Serialized<GameState> | null }) {
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
-      const name = formData.get("name") as string;
+      const name = formData.get("name");
       const playerKey = getUserId();
 
       const response = await fetch(`/game/${game?._id}/join`, {
@@ -37,6 +37,7 @@ export function UserDisplay({ game }: { game: Serialized<GameState> | null }) {
 
       if (response.ok) {
         // successfully joined
+        // TODO throw new game state to the top
         window.location.reload();
       } else {
         // handle error
@@ -46,13 +47,34 @@ export function UserDisplay({ game }: { game: Serialized<GameState> | null }) {
     [game?._id]
   );
 
+  const handleLeave = useCallback(async () => {
+    const response = await fetch(`/game/${game?._id}/leave`, {
+      method: "PUT",
+      body: JSON.stringify({ key: getUserId() }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      // successfully left
+      window.location.reload();
+    } else {
+      // handle error
+      console.error("Failed to leave game", { message: await response.json() });
+    }
+  }, [game?._id]);
+
   // this is hiding a localStorage call, so we can't render this on the server.
   // i think it would work if we store the user key in a cookie
   const playerKey = useUserId();
   const currentPlayer = game?.players.find((p) => p.key === playerKey);
 
   return currentPlayer ? (
-    <p>Playing as: {currentPlayer.name}</p>
+    <p>
+      Playing as: {currentPlayer.name}{" "}
+      <button onClick={handleLeave}>leave game</button>
+    </p>
   ) : (
     <form onSubmit={handleJoin}>
       <label>

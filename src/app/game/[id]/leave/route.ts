@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { getGame, serialized, updateGame } from "../../../../state";
-import { joinGame } from "../../../../mutations";
+import { leaveGame } from "../../../../mutations";
 
 export const PUT = async (
   request: NextRequest,
@@ -13,11 +13,7 @@ export const PUT = async (
   }
 
   const body = await request.json();
-  const { name, key } = body;
-
-  if (!name) {
-    return new Response("Player name is required", { status: 400 });
-  }
+  const { key } = body;
 
   if (!key) {
     return new Response("Player key is required", { status: 400 });
@@ -29,11 +25,11 @@ export const PUT = async (
     return new Response("No such game", { status: 404 });
   }
 
-  const updatedGame = joinGame(game, name, key);
+  const updatedGame = leaveGame(game, key);
   const result = await updateGame(updatedGame);
 
   if (!result) {
-    return new Response("Join failed", { status: 500 });
+    return new Response("Leave failed", { status: 500 });
   }
 
   return Response.json(serialized(result));

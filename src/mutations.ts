@@ -56,6 +56,23 @@ export function joinGame<T extends GameState>(
   };
 }
 
+export function leaveGame<T extends GameState>(
+  gameState: T,
+  playerKey: string
+): T {
+  // validation
+  // game not started
+  if (gameStarted(gameState)) {
+    throw new Error("Cannot remove player: game has already started");
+  }
+
+  const players = gameState.players.filter((p) => p.key !== playerKey);
+  return {
+    ...gameState,
+    players,
+  };
+}
+
 export function playCard(
   gameState: GameState,
   pileKey: keyof GameState["piles"],

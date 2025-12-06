@@ -59,15 +59,14 @@ export async function getGame(
 // TODO various layers of this state are getting messy
 
 export async function updateGame(
-  gameState: Serialized<GameState>,
-  id: string
+  gameState: Serialized<GameState>
 ): Promise<WithId<GameState> | null> {
   const { _id, ...writeableGameState } = gameState;
   const actualClient = await getClient();
   const result = await actualClient
     .db("games")
     .collection<GameState>("games")
-    .findOneAndReplace({ _id: new ObjectId(id) }, writeableGameState);
+    .findOneAndReplace({ _id: new ObjectId(_id) }, writeableGameState);
   console.log("updateGame result:", { result });
   return result;
 }
