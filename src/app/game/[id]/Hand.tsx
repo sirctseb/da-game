@@ -16,7 +16,7 @@ export function Hand({ game, onPickCard, draftPlay }: HandProps) {
   const player = game.players.find((p) => p.key === userId);
 
   if (!player) {
-    return <div>Your hand is not available.</div>;
+    return <div>Spectating</div>;
   }
 
   return (

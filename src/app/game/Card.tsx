@@ -17,25 +17,8 @@ export function Card({
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: "white",
-        boxShadow: "2px 2px 5px rgba(0,0,0,0.3)",
-        fontSize: 24,
-        fontWeight: "bold",
-        position: "relative",
       }}
     >
-      {/* {number} */}
-      {/* {children && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 4,
-            fontSize: 12,
-            fontWeight: "normal",
-          }}
-        >
-          {children}
-        </div>
-      )} */}
       {children}
     </div>
   );

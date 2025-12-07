@@ -1,0 +1,39 @@
+.players-container {
+  padding: 1rem;
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.player {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.player-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.player-hand {
+  display: flex;
+  position: relative;
+  height: 90px; /* Match card height */
+  overflow: visible;
+}
+
+.player-hand .card-container {
+  position: relative;
+  margin-right: -40px; /* Negative margin to create overlap */
+}
+
+.player-hand .card-container:last-child {
+  margin-right: 0; /* Don't overlap the last card */
+}
+
+.card-back {
+  font-size: 24px;
+  color: #666;
+}

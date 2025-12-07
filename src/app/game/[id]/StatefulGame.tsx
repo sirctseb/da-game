@@ -12,6 +12,7 @@ import { Piles } from "./Piles";
 import { useUserId } from "../../useUserId";
 import { api } from "../../../apiClient";
 import { Debug } from "./Debug";
+import { OtherPlayers } from "./OtherPlayers";
 
 export function StatefulGame({
   gameState,
@@ -75,6 +76,7 @@ export function StatefulGame({
         marginTop: "1rem",
       }}
     >
+      <OtherPlayers game={game} userId={userId} />
       <Piles
         game={game}
         onPickPile={handlePickPile}
