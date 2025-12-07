@@ -38,6 +38,10 @@ export function StatefulGame({
     [setDraftPlay]
   );
 
+  const handleStart = useCallback(async () => {
+    setGame(await api.start(game._id));
+  }, [game._id, setGame]);
+
   const handlePlay = useCallback(async () => {
     if (draftPlay.card == null || draftPlay.pile == null) {
       console.error("Incomplete play");
@@ -74,10 +78,12 @@ export function StatefulGame({
         onPickCard={handlePickCard}
         draftPlay={draftPlay.card}
       />
-      <GameControls game={game} onUpdateGame={setGame} />
+      <GameControls
+        onEndTurn={handleEndTurn}
+        onPlay={handlePlay}
+        onStart={handleStart}
+      />
       <UserDisplay game={game} onUpdateGame={setGame} />
-      <button onClick={handlePlay}>play</button>
-      <button onClick={handleEndTurn}>end turn</button>
       <Debug game={gameState} draftPlay={draftPlay} userId={userId} />
     </div>
   );

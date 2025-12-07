@@ -1,0 +1,13 @@
+.game-controls {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+
+  button {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid black;
+  }
+}
