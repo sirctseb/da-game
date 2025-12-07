@@ -4,15 +4,14 @@ import { useCallback, useState } from "react";
 import type { Play } from "../../../model";
 import type { GameState } from "@/data";
 
-import { GameDisplay } from "./GameDisplay";
 import { UserDisplay } from "./UserDisplay";
 import type { Serialized } from "../../../data/state";
 import { GameControls } from "./GameControls";
 import { Hand } from "./Hand";
-import { ClientDisplay } from "./ClientDisplay";
 import { Piles } from "./Piles";
 import { useUserId } from "../../useUserId";
 import { api } from "../../../apiClient";
+import { Debug } from "./Debug";
 
 export function StatefulGame({
   gameState,
@@ -65,8 +64,6 @@ export function StatefulGame({
 
   return (
     <div>
-      <GameDisplay game={game} />
-      <ClientDisplay draftPlay={draftPlay} />
       <Piles
         game={game}
         onPickPile={handlePickPile}
@@ -81,6 +78,7 @@ export function StatefulGame({
       <UserDisplay game={game} onUpdateGame={setGame} />
       <button onClick={handlePlay}>play</button>
       <button onClick={handleEndTurn}>end turn</button>
+      <Debug game={gameState} draftPlay={draftPlay} userId={userId} />
     </div>
   );
 }
