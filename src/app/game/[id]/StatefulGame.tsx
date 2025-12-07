@@ -56,6 +56,13 @@ export function StatefulGame({
     }
   }, [draftPlay, game._id, userId]);
 
+  const handleEndTurn = useCallback(async () => {
+    if (userId) {
+      setGame(await api.endTurn({ playerKey: userId }, game._id));
+      setDraftPlay({});
+    }
+  }, [game._id, userId]);
+
   return (
     <div>
       <GameDisplay game={game} />
@@ -65,6 +72,7 @@ export function StatefulGame({
       <GameControls game={game} onUpdateGame={setGame} />
       <UserDisplay game={game} onUpdateGame={setGame} />
       <button onClick={handlePlay}>play</button>
+      <button onClick={handleEndTurn}>end turn</button>
     </div>
   );
 }

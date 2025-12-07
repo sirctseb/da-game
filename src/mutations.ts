@@ -73,6 +73,17 @@ export function leaveGame(
   };
 }
 
+function getHandLimit(game: GameState): number {
+  switch (game.players.length) {
+    case 1:
+      return 8;
+    case 2:
+      return 7;
+    default:
+      return 6;
+  }
+}
+
 export function deal(gameState: PersistedGameState): PersistedGameState {
   // validation
   // game not started
@@ -81,17 +92,19 @@ export function deal(gameState: PersistedGameState): PersistedGameState {
   }
 
   const playerKeys = gameState.players.map((p) => p.key);
-  const DRAW_COUNT =
-    gameState.players.length === 1 ? 8 : gameState.players.length === 2 ? 7 : 6;
+  const handLimit = getHandLimit(gameState);
 
   let workingGameState = gameState;
   for (const playerKey of playerKeys) {
-    for (let i = 0; i < DRAW_COUNT; i++) {
+    for (let i = 0; i < handLimit; i++) {
       workingGameState = drawOne(workingGameState, playerKey);
     }
   }
 
-  return workingGameState;
+  return {
+    ...workingGameState,
+    turn: { playerId: playerKeys[0], playedCards: [] },
+  };
 }
 
 export function playCard(
@@ -112,6 +125,10 @@ export function playCard(
   // player has card
   if (!player.hand.cards.includes(cardValue)) {
     throw new Error("Player does not have the specified card");
+  }
+
+  if (gameState.turn?.playerId !== playerKey) {
+    throw new Error("It's not this player's turn");
   }
 
   // card is legal on pile (correct direction or opposite by 10)
@@ -147,6 +164,11 @@ export function playCard(
       [pileKey]: updatedPile,
     },
     players: updatedPlayers,
+    turn: {
+      // TODO these are the !s we can remove with a lobby
+      ...gameState.turn!,
+      playedCards: [...gameState.turn!.playedCards, cardValue],
+    },
   };
 }
 
@@ -194,25 +216,30 @@ export function endTurn(
     throw new Error("Player not found");
   }
 
+  if (gameState.turn?.playerId !== playerKey) {
+    throw new Error("It's not this player's turn");
+  }
+
   // have played enough cards
   if (gameState.deck.cards.length === 0) {
-    if (player.hand.cards.length >= 7) {
+    if (gameState.turn?.playedCards.length < 1) {
       throw new Error("Must play at least one card when deck is empty");
     }
   } else {
-    if (player.hand.cards.length >= 5) {
+    if (gameState.turn.playedCards.length < 2) {
       throw new Error("Must play at least two cards before ending turn");
     }
   }
 
   // TODO refactor to use drawOne
   let workingDeck = [...gameState.deck.cards];
+  const handLimit = getHandLimit(gameState);
   const updatedPlayers = gameState.players.map((p) => {
     if (p.key === playerKey) {
-      let updatedHand = [...p.hand.cards];
-      while (updatedHand.length < 6 && workingDeck.length > 0) {
-        const drawnCard = gameState.deck.cards[0];
-        updatedHand = [...updatedHand, drawnCard];
+      const updatedHand = [...p.hand.cards];
+      while (updatedHand.length < handLimit && workingDeck.length > 0) {
+        const drawnCard = workingDeck[0];
+        updatedHand.push(drawnCard);
         workingDeck = workingDeck.slice(1);
       }
       return { ...p, hand: { cards: updatedHand } };
@@ -224,6 +251,14 @@ export function endTurn(
     ...gameState,
     players: updatedPlayers,
     deck: { cards: workingDeck },
+    turn: {
+      playerId:
+        gameState.players[
+          (gameState.players.findIndex((p) => p.key === playerKey) + 1) %
+            gameState.players.length
+        ].key,
+      playedCards: [],
+    },
   };
 }
 

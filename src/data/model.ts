@@ -26,6 +26,11 @@ export interface GameState {
   };
   deck: Deck;
   players: Player[];
+  // games exist before we can populate a turn
+  // let's make this optional with a
+  // TODO create a Lobby collection with just the players
+  // and latch them into a Game when it starts
+  turn?: Turn;
 }
 
 // TODO this might be more appropriately placed in the api layer
