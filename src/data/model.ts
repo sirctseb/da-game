@@ -31,6 +31,7 @@ export interface GameState {
   // TODO create a Lobby collection with just the players
   // and latch them into a Game when it starts
   turn?: Turn;
+  gameOver: boolean;
 }
 
 // TODO this might be more appropriately placed in the api layer

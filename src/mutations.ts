@@ -9,8 +9,6 @@ export const shuffleCards = (): Deck => {
   return { cards };
 };
 
-// TODO resetGameWithPlayers
-
 export function initializeGameState(): GameState {
   return {
     piles: {
@@ -21,6 +19,7 @@ export function initializeGameState(): GameState {
     },
     deck: shuffleCards(),
     players: [],
+    gameOver: false,
   };
 }
 
@@ -107,6 +106,61 @@ export function deal(gameState: PersistedGameState): PersistedGameState {
   };
 }
 
+function isLegalPlacement(
+  card: number,
+  pileTop: number | undefined,
+  direction: "up" | "down"
+): boolean {
+  if (pileTop === undefined) {
+    return true;
+  }
+  return (
+    (direction === "up" && card > pileTop) ||
+    (direction === "down" && card < pileTop) ||
+    Math.abs(card - pileTop) === 10
+  );
+}
+
+function hasPlayedEnoughCards(gameState: GameState): boolean {
+  if (!gameState.turn) {
+    return false;
+  }
+
+  if (gameState.deck.cards.length === 0) {
+    return gameState.turn.playedCards.length >= 1;
+  } else {
+    return gameState.turn.playedCards.length >= 2;
+  }
+}
+
+// the game is over when the player whose turn it is must play
+// another card but does not have a legal move
+function isGameOver(gameState: GameState): boolean {
+  const currentPlayer = gameState.players.find(
+    (p) => p.key === gameState.turn?.playerId
+  );
+  if (!currentPlayer) {
+    return false;
+  }
+
+  if (hasPlayedEnoughCards(gameState)) {
+    return false;
+  }
+
+  for (const card of currentPlayer.hand.cards) {
+    for (const pileKey in gameState.piles) {
+      const pile = gameState.piles[pileKey as keyof GameState["piles"]];
+      const topCard = pile.cards[pile.cards.length - 1];
+
+      if (isLegalPlacement(card, topCard, pile.direction)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 export function playCard(
   gameState: PersistedGameState,
   pileKey: keyof GameState["piles"],
@@ -133,14 +187,8 @@ export function playCard(
 
   // card is legal on pile (correct direction or opposite by 10)
   const topCard = pile.cards[pile.cards.length - 1];
-  const isLegalMove =
-    (pile.direction === "up" &&
-      (topCard === undefined || cardValue > topCard)) ||
-    (pile.direction === "down" &&
-      (topCard === undefined || cardValue < topCard)) ||
-    (topCard !== undefined && Math.abs(cardValue - topCard) === 10);
 
-  if (!isLegalMove) {
+  if (!isLegalPlacement(cardValue, topCard, pile.direction)) {
     throw new Error("Illegal move: card cannot be played on this pile");
   }
 
@@ -157,7 +205,7 @@ export function playCard(
     return p;
   });
 
-  return {
+  const result = {
     ...gameState,
     piles: {
       ...gameState.piles,
@@ -170,6 +218,19 @@ export function playCard(
       playedCards: [...gameState.turn!.playedCards, cardValue],
     },
   };
+
+  // TODO well this can be derived from the state so maybe no reason to persist it?
+  // its not derivable from what information is known to an arbitrary player though,
+  // so we can't do it if we restrict what is sent to the client. probably should just
+  // persist it anyway
+  if (isGameOver(result)) {
+    return {
+      ...result,
+      gameOver: true,
+    };
+  }
+
+  return result;
 }
 
 function drawOne(
@@ -221,12 +282,10 @@ export function endTurn(
   }
 
   // have played enough cards
-  if (gameState.deck.cards.length === 0) {
-    if (gameState.turn?.playedCards.length < 1) {
+  if (!hasPlayedEnoughCards(gameState)) {
+    if (gameState.deck.cards.length === 0) {
       throw new Error("Must play at least one card when deck is empty");
-    }
-  } else {
-    if (gameState.turn.playedCards.length < 2) {
+    } else {
       throw new Error("Must play at least two cards before ending turn");
     }
   }
@@ -247,7 +306,7 @@ export function endTurn(
     return p;
   });
 
-  return {
+  const result = {
     ...gameState,
     players: updatedPlayers,
     deck: { cards: workingDeck },
@@ -260,6 +319,15 @@ export function endTurn(
       playedCards: [],
     },
   };
+
+  if (isGameOver(result)) {
+    return {
+      ...result,
+      gameOver: true,
+    };
+  }
+
+  return result;
 }
 
 // remove player
