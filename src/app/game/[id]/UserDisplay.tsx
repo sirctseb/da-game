@@ -5,62 +5,41 @@ import type { GameState } from "../../../model";
 import { getUserId } from "../../../user";
 import type { Serialized } from "../../../state";
 import { useUserId } from "../../useUserId";
+import { api } from "../../../apiClient";
 
 export function UserDisplay({
   game,
   onUpdateGame,
 }: {
-  game: Serialized<GameState> | null;
+  game: Serialized<GameState>;
   onUpdateGame: (game: Serialized<GameState>) => void;
 }) {
+  const key = getUserId();
+
   const handleJoin = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const formData = new FormData(event.currentTarget);
-      const name = formData.get("name");
-      const playerKey = getUserId();
+      const name = formData.get("name")?.toString();
 
-      const response = await fetch(`/game/${game?._id}/join`, {
-        method: "PUT",
-        body: JSON.stringify({ name, key: playerKey }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        // successfully joined
-        onUpdateGame(await response.json());
+      if (name) {
+        onUpdateGame(await api.join({ name, key }, game._id));
       } else {
-        // handle error
-        console.error("Failed to join game");
+        // TODO error display with blank name
+        console.error("Name is required to join the game");
       }
     },
-    [game?._id]
+    [game?._id, onUpdateGame, key]
   );
 
   const handleLeave = useCallback(async () => {
-    const response = await fetch(`/game/${game?._id}/leave`, {
-      method: "PUT",
-      body: JSON.stringify({ key: getUserId() }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.ok) {
-      // successfully left
-      onUpdateGame(await response.json());
-    } else {
-      // handle error
-      console.error("Failed to leave game", { message: await response.json() });
-    }
-  }, [game?._id]);
+    onUpdateGame(await api.leave({ key }, game._id));
+  }, [game._id, onUpdateGame, key]);
 
   // this is hiding a localStorage call, so we can't render this on the server.
   // i think it would work if we store the user key in a cookie
   const playerKey = useUserId();
-  const currentPlayer = game?.players.find((p) => p.key === playerKey);
+  const currentPlayer = game.players.find((p) => p.key === playerKey);
 
   return currentPlayer ? (
     <p>
