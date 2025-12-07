@@ -14,6 +14,10 @@ import { api } from "../../../apiClient";
 import { Debug } from "./Debug";
 import { OtherPlayers } from "./OtherPlayers";
 
+const useCurrentPlayerName = (game: Serialized<GameState>): string | null => {
+  return game.players.find((p) => p.key === game.turn?.playerId)?.name || null;
+};
+
 export function StatefulGame({
   gameState,
 }: {
@@ -25,6 +29,7 @@ export function StatefulGame({
   // TODO well i guess we are still rendering everything, just waiating
   // on a value to be able to make callbacks
   const userId = useUserId();
+  const currentPlayerName = useCurrentPlayerName(game);
   const handlePickCard = useCallback(
     (card: number) => {
       setDraftPlay((play) => ({ ...play, card }));
@@ -92,6 +97,7 @@ export function StatefulGame({
         onPlay={handlePlay}
         onStart={handleStart}
       />
+      {currentPlayerName && <p>It is {currentPlayerName}&apos;s turn</p>}
       <UserDisplay game={game} onUpdateGame={setGame} />
       <Debug game={gameState} draftPlay={draftPlay} userId={userId} />
     </div>
