@@ -11,6 +11,7 @@ import { Hand } from "./Hand";
 import { ClientDisplay } from "./ClientDisplay";
 import { Piles } from "./Piles";
 import { useUserId } from "../../useUserId";
+import { api } from "../../../apiClient";
 
 export function StatefulGame({
   gameState,
@@ -20,6 +21,8 @@ export function StatefulGame({
   const [game, setGame] = useState(gameState);
   const [draftPlay, setDraftPlay] = useState<Partial<Play>>({});
   // TODO we should be able to render more of this server side
+  // TODO well i guess we are still rendering everything, just waiating
+  // on a value to be able to make callbacks
   const userId = useUserId();
   const handlePickCard = useCallback(
     (card: number) => {
@@ -41,22 +44,14 @@ export function StatefulGame({
       return;
     }
 
-    const response = await fetch(`/game/${game._id}/play`, {
-      method: "POST",
-      body: JSON.stringify({
-        ...draftPlay,
-        playerKey: userId,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.ok) {
-      setGame(await response.json());
+    if (userId) {
+      setGame(
+        await api.play(
+          { card: draftPlay.card, pile: draftPlay.pile, playerKey: userId },
+          game._id
+        )
+      );
       setDraftPlay({});
-    } else {
-      console.error("Failed to submit play");
     }
   }, [draftPlay, game._id, userId]);
 
