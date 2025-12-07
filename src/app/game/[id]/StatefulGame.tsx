@@ -67,7 +67,14 @@ export function StatefulGame({
   }, [game._id, userId]);
 
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        marginTop: "1rem",
+      }}
+    >
       <Piles
         game={game}
         onPickPile={handlePickPile}
