@@ -1,4 +1,4 @@
-import type { Deck, GameState, PersistedGameState } from "./model";
+import type { Deck, GameState, PersistedGameState } from "./data";
 
 export const shuffleCards = (): Deck => {
   const cards = [...Array(98).keys()].map((i) => i + 1);

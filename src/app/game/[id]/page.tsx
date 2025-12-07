@@ -1,4 +1,4 @@
-import { getGame } from "../../../state";
+import { getGame, serialized } from "../../../data/state";
 import { StatefulGame } from "./StatefulGame";
 
 export default async function GamePage({
@@ -9,5 +9,9 @@ export default async function GamePage({
   const { id } = await params;
   const game = await getGame(id);
 
-  return game ? <StatefulGame gameState={game} /> : <div>Game not found</div>;
+  return game ? (
+    <StatefulGame gameState={serialized(game)} />
+  ) : (
+    <div>Game not found</div>
+  );
 }

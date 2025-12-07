@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
-import { getGame, serialized, updateGame } from "../../../../state";
+import { getGame, serialized, updateGame } from "../../../../data/state";
 import { playCard } from "../../../../mutations";
+import type { PlayArgs } from "../../../../apiClient";
 
 export const POST = async (
   request: NextRequest,
@@ -18,9 +19,14 @@ export const POST = async (
     return new Response("No such game", { status: 404 });
   }
 
-  const body = await request.json();
+  const body = (await request.json()) as PlayArgs;
 
-  const updatedGame = playCard(game, body.pile, body.card, body.playerKey);
+  const updatedGame = playCard(
+    serialized(game),
+    body.pile,
+    body.card,
+    body.playerKey
+  );
   const result = await updateGame(updatedGame);
 
   if (!result) {

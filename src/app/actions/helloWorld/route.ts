@@ -1,4 +1,4 @@
-import { readHelloWorld, writeHelloWorld } from "../../../state";
+import { readHelloWorld, writeHelloWorld } from "../../../data/state";
 
 export async function GET() {
   // return Response.json({ message: "Hello, World!" });

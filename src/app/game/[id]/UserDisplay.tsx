@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback } from "react";
-import type { GameState } from "../../../model";
+import type { GameState } from "@/data";
 import { getUserId } from "../../../user";
-import type { Serialized } from "../../../state";
+import type { Serialized } from "../../../data/state";
 import { useUserId } from "../../useUserId";
 import { api } from "../../../apiClient";
 

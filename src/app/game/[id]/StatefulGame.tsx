@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { GameState, Play } from "../../../model";
+import type { Play } from "../../../model";
+import type { GameState } from "@/data";
 
 import { GameDisplay } from "./GameDisplay";
 import { UserDisplay } from "./UserDisplay";
-import type { Serialized } from "../../../state";
+import type { Serialized } from "../../../data/state";
 import { GameControls } from "./GameControls";
 import { Hand } from "./Hand";
 import { ClientDisplay } from "./ClientDisplay";

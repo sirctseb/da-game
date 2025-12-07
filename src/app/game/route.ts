@@ -1,5 +1,5 @@
 import { initializeGameState } from "../../mutations";
-import { createGame } from "../../state";
+import { createGame } from "../../data/state";
 
 export async function POST() {
   const gameState = initializeGameState();

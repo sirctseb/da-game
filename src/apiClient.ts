@@ -1,4 +1,4 @@
-import type { PersistedGameState } from "./model";
+import type { PersistedGameState } from "./data";
 
 export interface JoinArgs {
   name: string;

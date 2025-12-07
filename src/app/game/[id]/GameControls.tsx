@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback } from "react";
-import type { GameState } from "../../../model";
-import type { Serialized } from "../../../state";
+import type { GameState } from "@/data";
+import type { Serialized } from "../../../data/state";
 import { api } from "../../../apiClient";
 
 export function GameControls({

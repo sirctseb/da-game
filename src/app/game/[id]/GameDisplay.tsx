@@ -1,4 +1,4 @@
-import type { GameState } from "../../../model";
+import type { GameState } from "@/data";
 
 export function GameDisplay({ game }: { game: GameState }) {
   const {

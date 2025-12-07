@@ -1,7 +1,7 @@
 "use client";
 
-import type { GameState } from "../../../model";
-import type { Serialized } from "../../../state";
+import type { GameState } from "@/data";
+import type { Serialized } from "../../../data/state";
 import { getUserId } from "../../../user";
 
 interface HandProps {

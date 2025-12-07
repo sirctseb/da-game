@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { getGame, serialized, updateGame } from "../../../../state";
+import { getGame, serialized, updateGame } from "../../../../data/state";
 import { deal } from "../../../../mutations";
 
 export const PUT = async (
@@ -18,7 +18,7 @@ export const PUT = async (
     return new Response("No such game", { status: 404 });
   }
 
-  const updatedGame = deal(game);
+  const updatedGame = deal(serialized(game));
   const result = await updateGame(updatedGame);
 
   if (!result) {
