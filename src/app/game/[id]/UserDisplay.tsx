@@ -6,6 +6,7 @@ import { getUserId } from "../../../user";
 import type { Serialized } from "../../../data/state";
 import { useUserId } from "../../useUserId";
 import { api } from "../../../apiClient";
+import "./UserDisplay.css";
 
 export function UserDisplay({
   game,
@@ -41,18 +42,24 @@ export function UserDisplay({
   const playerKey = useUserId();
   const currentPlayer = game.players.find((p) => p.key === playerKey);
 
-  return currentPlayer ? (
-    <p>
-      Playing as: {currentPlayer.name}{" "}
-      <button onClick={handleLeave}>leave game</button>
-    </p>
-  ) : (
-    <form onSubmit={handleJoin}>
-      <label>
-        name:
-        <input name="name" />
-      </label>
-      <button type="submit">join game</button>
-    </form>
+  return (
+    <div className="user-display">
+      {currentPlayer ? (
+        <p>
+          Playing as: <span className="player-name">{currentPlayer.name}</span>
+          <button className="leave-btn" onClick={handleLeave}>
+            leave game
+          </button>
+        </p>
+      ) : (
+        <form onSubmit={handleJoin}>
+          <label>
+            Name:
+            <input name="name" placeholder="Enter your name" />
+          </label>
+          <button type="submit">Join Game</button>
+        </form>
+      )}
+    </div>
   );
 }
