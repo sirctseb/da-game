@@ -2,8 +2,8 @@
 
 import type { GameState } from "@/data";
 import type { Serialized } from "../../../data/state";
-import { getUserId } from "../../../user";
 import { Card } from "../Card";
+import { useUserId } from "../../useUserId";
 
 interface HandProps {
   game: Serialized<GameState>;
@@ -12,7 +12,7 @@ interface HandProps {
 }
 
 export function Hand({ game, onPickCard, draftPlay }: HandProps) {
-  const userId = getUserId();
+  const userId = useUserId();
   const player = game.players.find((p) => p.key === userId);
 
   if (!player) {

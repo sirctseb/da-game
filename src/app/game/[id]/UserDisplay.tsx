@@ -2,7 +2,6 @@
 
 import { useCallback } from "react";
 import type { GameState } from "@/data";
-import { getUserId } from "../../../user";
 import type { Serialized } from "../../../data/state";
 import { useUserId } from "../../useUserId";
 import { api } from "../../../apiClient";
@@ -15,11 +14,18 @@ export function UserDisplay({
   game: Serialized<GameState>;
   onUpdateGame: (game: Serialized<GameState>) => void;
 }) {
-  const key = getUserId();
+  // this is hiding a localStorage call, so we can't render this on the server.
+  // i think it would work if we store the user key in a cookie
+  const key = useUserId();
 
   const handleJoin = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+
+      if (!key) {
+        return;
+      }
+
       const formData = new FormData(event.currentTarget);
       const name = formData.get("name")?.toString();
 
@@ -34,13 +40,14 @@ export function UserDisplay({
   );
 
   const handleLeave = useCallback(async () => {
+    if (!key) {
+      return;
+    }
+
     onUpdateGame(await api.leave({ key }, game._id));
   }, [game._id, onUpdateGame, key]);
 
-  // this is hiding a localStorage call, so we can't render this on the server.
-  // i think it would work if we store the user key in a cookie
-  const playerKey = useUserId();
-  const currentPlayer = game.players.find((p) => p.key === playerKey);
+  const currentPlayer = game.players.find((p) => p.key === key);
 
   return (
     <div className="user-display">
