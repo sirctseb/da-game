@@ -67,8 +67,16 @@ export function StatefulGame({
     <div>
       <GameDisplay game={game} />
       <ClientDisplay draftPlay={draftPlay} />
-      <Piles game={game} onPickPile={handlePickPile} />
-      <Hand game={game} onPickCard={handlePickCard} />
+      <Piles
+        game={game}
+        onPickPile={handlePickPile}
+        draftPile={draftPlay.pile}
+      />
+      <Hand
+        game={game}
+        onPickCard={handlePickCard}
+        draftPlay={draftPlay.card}
+      />
       <GameControls game={game} onUpdateGame={setGame} />
       <UserDisplay game={game} onUpdateGame={setGame} />
       <button onClick={handlePlay}>play</button>

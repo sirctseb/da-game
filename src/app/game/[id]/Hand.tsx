@@ -8,9 +8,10 @@ import { Card } from "../Card";
 interface HandProps {
   game: Serialized<GameState>;
   onPickCard: (card: number) => void;
+  draftPlay?: number;
 }
 
-export function Hand({ game, onPickCard }: HandProps) {
+export function Hand({ game, onPickCard, draftPlay }: HandProps) {
   const userId = getUserId();
   const player = game.players.find((p) => p.key === userId);
 
@@ -27,7 +28,16 @@ export function Hand({ game, onPickCard }: HandProps) {
       }}
     >
       {player.hand.cards.map((card) => (
-        <div key={card} onClick={() => onPickCard(card)}>
+        <div
+          key={card}
+          onClick={() => onPickCard(card)}
+          style={{
+            cursor: "pointer",
+            position: "relative",
+            bottom: draftPlay === card ? "1rem" : 0,
+            transition: "bottom 0.1s",
+          }}
+        >
           <Card>{card}</Card>
         </div>
       ))}
