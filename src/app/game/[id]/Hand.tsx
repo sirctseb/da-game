@@ -3,6 +3,7 @@
 import type { GameState } from "@/data";
 import type { Serialized } from "../../../data/state";
 import { getUserId } from "../../../user";
+import { Card } from "../Card";
 
 interface HandProps {
   game: Serialized<GameState>;
@@ -18,10 +19,16 @@ export function Hand({ game, onPickCard }: HandProps) {
   }
 
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        gap: "0.5rem",
+        justifyContent: "center",
+      }}
+    >
       {player.hand.cards.map((card) => (
         <div key={card} onClick={() => onPickCard(card)}>
-          {card}
+          <Card>{card}</Card>
         </div>
       ))}
     </div>
