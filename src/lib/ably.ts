@@ -27,16 +27,3 @@ export function publishGameUpdate(gameId: string) {
     console.error("Failed to publish game update:", error);
   }
 }
-
-// Client-side Ably client factory with token auth
-export function createAblyClient(clientId: string): Ably.Realtime {
-  return new Ably.Realtime({
-    authUrl: "/api/ably-token",
-    authMethod: "POST",
-    authHeaders: {
-      "Content-Type": "application/json",
-    },
-    authParams: { clientId },
-    clientId: clientId,
-  });
-}

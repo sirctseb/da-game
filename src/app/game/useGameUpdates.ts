@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import { createAblyClient } from "../../lib/ably";
-import type { GameState } from "@/data";
+import Ably from "ably";
+import type { GameState } from "../../data";
 import type { Serialized } from "../../data/state";
 import { api } from "../../apiClient";
 import type { InboundMessage } from "ably";
@@ -11,6 +11,19 @@ export interface UseGameUpdatesProps {
   gameId: string;
   userId: string;
   onGameUpdate: (game: Serialized<GameState>) => void;
+}
+
+// Client-side Ably client factory with token auth
+function createAblyClient(clientId: string): Ably.Realtime {
+  return new Ably.Realtime({
+    authUrl: "/api/ably-token",
+    authMethod: "POST",
+    authHeaders: {
+      "Content-Type": "application/json",
+    },
+    authParams: { clientId },
+    clientId: clientId,
+  });
 }
 
 export function useGameUpdates({
