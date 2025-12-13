@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { getGame, serialized, updateGame } from "../../../../data/state";
 import { leaveGame } from "../../../../mutations";
 import type { LeaveArgs } from "../../../../apiClient";
+import { publishGameUpdate } from "../../../../lib/ably";
 
 export const PUT = async (
   request: NextRequest,
@@ -32,6 +33,9 @@ export const PUT = async (
   if (!result) {
     return new Response("Leave failed", { status: 500 });
   }
+
+  // Notify all players of the game state change
+  publishGameUpdate(id);
 
   return Response.json(serialized(result));
 };

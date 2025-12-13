@@ -13,6 +13,7 @@ import { useUserId } from "../../useUserId";
 import { api } from "../../../apiClient";
 import { Debug } from "./Debug";
 import { OtherPlayers } from "./OtherPlayers";
+import { useGameUpdates } from "../useGameUpdates";
 
 const useCurrentPlayerName = (game: Serialized<GameState>): string | null => {
   return game.players.find((p) => p.key === game.turn?.playerId)?.name || null;
@@ -25,10 +26,15 @@ export function StatefulGame({
 }) {
   const [game, setGame] = useState(gameState);
   const [draftPlay, setDraftPlay] = useState<Partial<Play>>({});
-  // TODO we should be able to render more of this server side
-  // TODO well i guess we are still rendering everything, just waiating
-  // on a value to be able to make callbacks
   const userId = useUserId();
+
+  // Set up real-time game updates
+  useGameUpdates({
+    gameId: game._id,
+    userId: userId || "",
+    onGameUpdate: setGame,
+  });
+
   const currentPlayerName = useCurrentPlayerName(game);
   const handlePickCard = useCallback(
     (card: number) => {

@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { getGame, serialized, updateGame } from "../../../../data/state";
 import { joinGame } from "../../../../mutations";
 import type { JoinArgs } from "../../../../apiClient";
+import { publishGameUpdate } from "../../../../lib/ably";
 
 export const PUT = async (
   request: NextRequest,
@@ -36,6 +37,9 @@ export const PUT = async (
   if (!result) {
     return new Response("Join failed", { status: 500 });
   }
+
+  // Notify all players of the game state change
+  publishGameUpdate(id);
 
   return Response.json(serialized(result));
 };

@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { getGame, serialized, updateGame } from "../../../../data/state";
 import { endTurn } from "../../../../mutations";
 import type { EndTurnArgs } from "../../../../apiClient";
+import { publishGameUpdate } from "../../../../lib/ably";
 
 export const POST = async (
   request: NextRequest,
@@ -25,8 +26,11 @@ export const POST = async (
   const result = await updateGame(updatedGame);
 
   if (!result) {
-    return new Response("End turng failed", { status: 500 });
+    return new Response("End turn failed", { status: 500 });
   }
+
+  // Notify all players of the game state change
+  publishGameUpdate(id);
 
   return Response.json(serialized(result));
 };

@@ -125,4 +125,21 @@ export const api = {
   start,
   play,
   endTurn,
+  getGame,
 };
+
+async function getGame(gameId: string): Promise<PersistedGameState> {
+  const response = await fetch(`/game/${gameId}/fetch`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    console.error("Failed to get game");
+    throw new Error("Failed to get game");
+  }
+
+  return await response.json();
+}
